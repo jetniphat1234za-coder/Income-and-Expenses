@@ -27,20 +27,20 @@
                 </div>
             </div>
             
-            <nav class="nav-menu">
-                <button class="nav-item active" data-tab="dashboard">
+            <nav class="nav-menu" role="navigation" aria-label="เมนูหลัก">
+                <button class="nav-item active" data-tab="dashboard" aria-label="ไปที่แดชบอร์ด">
                     <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
                     แดชบอร์ด
                 </button>
-                <button class="nav-item" data-tab="transactions">
+                <button class="nav-item" data-tab="transactions" aria-label="ไปหน้ารายรับรายจ่าย">
                     <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
                     รายรับ - รายจ่าย
                 </button>
-                <button class="nav-item" data-tab="portfolio">
+                <button class="nav-item" data-tab="portfolio" aria-label="ไปหน้าพอร์ตการลงทุน">
                     <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83M22 12A10 10 0 0 0 12 2v10z"/></svg>
                     พอร์ตการลงทุน
                 </button>
-                <button class="nav-item" data-tab="data-mgmt">
+                <button class="nav-item" data-tab="data-mgmt" aria-label="ไปหน้าจัดการข้อมูล">
                     <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
                     จัดการข้อมูล & Excel
                 </button>
@@ -74,7 +74,7 @@
                         </select>
                     </div>
                     
-                    <button class="btn btn-primary" id="btn-quick-add">
+                    <button class="btn btn-primary" id="btn-quick-add" aria-label="เพิ่มรายการใหม่">
                         <span class="btn-icon">+</span> เพิ่มรายการใหม่
                     </button>
                 </div>
@@ -160,7 +160,7 @@
                         <div class="details-card">
                             <div class="card-header">
                                 <h3>รายการล่าสุดประจำเดือน</h3>
-                                <button class="btn btn-text" id="btn-view-all-tx">ดูทั้งหมด</button>
+                                <button class="btn btn-text" id="btn-view-all-tx" aria-label="ดูรายการทั้งหมด">ดูทั้งหมด</button>
                             </div>
                             <div class="table-responsive">
                                 <table class="custom-table" id="table-recent-transactions">
@@ -184,7 +184,7 @@
                         <div class="details-card">
                             <div class="card-header">
                                 <h3>พอร์ตการลงทุนหลัก</h3>
-                                <button class="btn btn-text" id="btn-view-all-portfolio">ดูพอร์ตเต็ม</button>
+                                <button class="btn btn-text" id="btn-view-all-portfolio" aria-label="ดูพอร์ตการลงทุนทั้งหมด">ดูพอร์ตเต็ม</button>
                             </div>
                             <div class="table-responsive">
                                 <table class="custom-table" id="table-recent-portfolio">
@@ -315,7 +315,7 @@
                         </div>
                         <div class="divider"></div>
                         <div class="p-summary-item">
-                            <button class="btn btn-success" id="btn-sync-prices">
+                            <button class="btn btn-success" id="btn-sync-prices" aria-label="ดึงราคาหุ้นเรียลไทม์">
                                 <span class="btn-icon">🔄</span> ดึงราคาหุ้นเรียลไทม์ (API)
                             </button>
                         </div>
@@ -326,7 +326,7 @@
                         <div class="glass-panel main-portfolio-panel">
                             <div class="panel-header">
                                 <h3>รายการสินทรัพย์และการลงทุนทั้งหมด</h3>
-                                <button class="btn btn-primary btn-sm" id="btn-add-asset">+ เพิ่มสินทรัพย์ใหม่</button>
+                                <button class="btn btn-primary btn-sm" id="btn-add-asset" aria-label="เพิ่มสินทรัพย์ใหม่">+ เพิ่มสินทรัพย์ใหม่</button>
                             </div>
                             
                             <div class="table-responsive">
@@ -396,17 +396,17 @@
                             <p class="data-card-desc">ข้อมูลทั้งหมดจะถูกจัดเก็บอย่างปลอดภัยแบบ Local อยู่บนเบราว์เซอร์ของคุณเอง ไม่มีขีดจำกัดในการบันทึก และไม่มีการส่งข้อมูลไปยังเซิร์ฟเวอร์ภายนอกใด ๆ เพื่อความเป็นส่วนตัวสูงสุด</p>
                             
                             <div class="data-actions-vertical">
-                                <button class="btn btn-indigo btn-block" id="btn-export-json">
+                                <button class="btn btn-indigo btn-block" id="btn-export-json" aria-label="ดาวน์โหลดไฟล์สำรองข้อมูล">
                                     📥 ดาวน์โหลดไฟล์สำรองข้อมูล (.json)
                                 </button>
                                 <div class="upload-backup-btn-wrapper">
-                                    <button class="btn btn-secondary btn-block" id="btn-trigger-import-json">
+                                    <button class="btn btn-secondary btn-block" id="btn-trigger-import-json" aria-label="อัปโหลดไฟล์กู้คืนข้อมูล">
                                         📤 อัปโหลดไฟล์กู้คืนข้อมูล (.json)
                                     </button>
                                     <input type="file" id="json-import-file" accept=".json" style="display:none;">
                                 </div>
                                 <hr class="data-divider">
-                                <button class="btn btn-danger btn-block" id="btn-clear-all-data">
+                                <button class="btn btn-danger btn-block" id="btn-clear-all-data" aria-label="ลบข้อมูลในระบบทั้งหมด">
                                     ⚠️ ลบข้อมูลในระบบทั้งหมด (ล้างข้อมูลเริ่มใหม่)
                                 </button>
                             </div>
@@ -423,14 +423,34 @@
         </main>
     </div>
 
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal" id="modal-confirm">
+        <div class="modal-content glass-panel modal-confirm-box">
+            <div class="modal-header">
+                <h3 id="confirm-title">ยืนยันการดำเนินการ</h3>
+                <span class="modal-close" id="modal-close-confirm">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p id="confirm-message" class="confirm-message"></p>
+                <div class="confirm-actions">
+                    <button class="btn btn-secondary" id="btn-confirm-cancel">ยกเลิก</button>
+                    <button class="btn btn-danger" id="btn-confirm-ok">ยืนยัน</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- MODALS SECTION -->
     
     <!-- Modal 1: Quick Add Transaction Modal -->
-    <div class="modal" id="modal-quick-add">
+    <div class="modal" id="modal-quick-add" role="dialog" aria-labelledby="modal-title-quick-add" aria-modal="true">
         <div class="modal-content glass-panel">
             <div class="modal-header">
-                <h3>เพิ่มรายการการเงินใหม่</h3>
-                <span class="modal-close" id="modal-close-add">&times;</span>
+                <h3 id="modal-title-quick-add">เพิ่มรายการการเงินใหม่</h3>
+                <span class="modal-close" id="modal-close-add" aria-label="ปิดหน้าต่าง">&times;</span>
             </div>
             <div class="modal-body">
                 <!-- Transaction Form cloned or shared in JS -->
@@ -440,11 +460,11 @@
     </div>
 
     <!-- Modal 2: Add/Edit Asset Modal -->
-    <div class="modal" id="modal-asset">
+    <div class="modal" id="modal-asset" role="dialog" aria-labelledby="modal-title-asset" aria-modal="true">
         <div class="modal-content glass-panel">
             <div class="modal-header">
-                <h3 id="modal-asset-title">เพิ่มสินทรัพย์ในพอร์ตการลงทุน</h3>
-                <span class="modal-close" id="modal-close-asset">&times;</span>
+                <h3 id="modal-title-asset">เพิ่มสินทรัพย์ในพอร์ตการลงทุน</h3>
+                <span class="modal-close" id="modal-close-asset" aria-label="ปิดหน้าต่าง">&times;</span>
             </div>
             <div class="modal-body">
                 <form id="form-asset" class="custom-form">
