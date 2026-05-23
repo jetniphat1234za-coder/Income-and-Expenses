@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JNP Wealth Tracker - ระบบบันทึกรายรับรายจ่ายและพอร์ตการลงทุนส่วนตัว</title>
+    <!-- Google Fonts: Outfit & Noto Sans Thai -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js for beautiful charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- SheetJS (xlsx.full.min.js) for parsing Excel files -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- Custom CSS styling -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="logo-icon">💰</div>
+                <div class="brand-text">
+                    <h1>JNP Wealth</h1>
+                    <span>Tracker v2.0</span>
+                </div>
+            </div>
+            
+            <nav class="nav-menu">
+                <button class="nav-item active" data-tab="dashboard">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+                    แดชบอร์ด
+                </button>
+                <button class="nav-item" data-tab="transactions">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    รายรับ - รายจ่าย
+                </button>
+                <button class="nav-item" data-tab="portfolio">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83M22 12A10 10 0 0 0 12 2v10z"/></svg>
+                    พอร์ตการลงทุน
+                </button>
+                <button class="nav-item" data-tab="data-mgmt">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                    จัดการข้อมูล & Excel
+                </button>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="avatar">JNP</div>
+                    <div class="user-info">
+                        <span class="user-name">JNP Account</span>
+                        <span class="user-role">ผู้ดูแลระบบ</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="page-title-container">
+                    <h2 id="current-page-title">แดชบอร์ดสรุปผล</h2>
+                    <p id="current-page-subtitle">ภาพรวมความมั่งคั่ง รายรับ รายจ่าย และการลงทุนของคุณ</p>
+                </div>
+                
+                <div class="top-bar-actions">
+                    <!-- Global Month Selector -->
+                    <div class="month-selector-wrapper">
+                        <label for="global-month-select">เลือกเดือน:</label>
+                        <select id="global-month-select" class="glow-select">
+                            <!-- Populated dynamically via JS -->
+                        </select>
+                    </div>
+                    
+                    <button class="btn btn-primary" id="btn-quick-add">
+                        <span class="btn-icon">+</span> เพิ่มรายการใหม่
+                    </button>
+                </div>
+            </header>
+
+            <!-- Container for active Tab views -->
+            <div class="tab-content-container">
+                
+                <!-- TAB 1: DASHBOARD -->
+                <section class="tab-panel active" id="tab-dashboard">
+                    <!-- Stats Grid -->
+                    <div class="stats-grid">
+                        <div class="stat-card stat-income">
+                            <div class="stat-header">
+                                <span class="stat-title">รายรับรวมประจำเดือน</span>
+                                <div class="stat-icon">📈</div>
+                            </div>
+                            <div class="stat-value" id="dash-total-income">฿0.00</div>
+                            <div class="stat-footer">
+                                <span class="trend-up" id="dash-income-period">ประจำเดือนนี้</span>
+                            </div>
+                            <div class="card-glow"></div>
+                        </div>
+                        
+                        <div class="stat-card stat-expense">
+                            <div class="stat-header">
+                                <span class="stat-title">รายจ่ายรวมประจำเดือน</span>
+                                <div class="stat-icon">📉</div>
+                            </div>
+                            <div class="stat-value" id="dash-total-expense">฿0.00</div>
+                            <div class="stat-footer">
+                                <span class="trend-down" id="dash-expense-period">ประจำเดือนนี้</span>
+                            </div>
+                            <div class="card-glow"></div>
+                        </div>
+                        
+                        <div class="stat-card stat-balance">
+                            <div class="stat-header">
+                                <span class="stat-title">คงเหลือ (สุทธิ)</span>
+                                <div class="stat-icon">⚖️</div>
+                            </div>
+                            <div class="stat-value" id="dash-net-balance">฿0.00</div>
+                            <div class="stat-footer">
+                                <span id="dash-balance-status">รักษาวินัยการเงินได้ดี</span>
+                            </div>
+                            <div class="card-glow"></div>
+                        </div>
+                        
+                        <div class="stat-card stat-invest">
+                            <div class="stat-header">
+                                <span class="stat-title">ยอดเก็บออม + ลงทุน</span>
+                                <div class="stat-icon">🚀</div>
+                            </div>
+                            <div class="stat-value" id="dash-total-invest">฿0.00</div>
+                            <div class="stat-footer">
+                                <span class="trend-up" id="dash-invest-ratio">คิดเป็น 0% ของรายรับ</span>
+                            </div>
+                            <div class="card-glow"></div>
+                        </div>
+                    </div>
+
+                    <!-- Charts & Breakdown Section -->
+                    <div class="dashboard-charts-layout">
+                        <!-- Chart 1: Monthly Overview (Bar Chart) -->
+                        <div class="chart-card large-chart">
+                            <h3>สถิติเปรียบเทียบรายรับ รายจ่าย และการลงทุน</h3>
+                            <div class="chart-container">
+                                <canvas id="chart-monthly-overview"></canvas>
+                            </div>
+                        </div>
+                        
+                        <!-- Chart 2: Category Breakdown (Donut Chart) -->
+                        <div class="chart-card small-chart">
+                            <h3>สัดส่วนการใช้จ่ายตามหมวดหมู่</h3>
+                            <div class="chart-container">
+                                <canvas id="chart-category-breakdown"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Transactions & Quick Insights -->
+                    <div class="dashboard-details-layout">
+                        <div class="details-card">
+                            <div class="card-header">
+                                <h3>รายการล่าสุดประจำเดือน</h3>
+                                <button class="btn btn-text" id="btn-view-all-tx">ดูทั้งหมด</button>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="custom-table" id="table-recent-transactions">
+                                    <thead>
+                                        <tr>
+                                            <th>วันที่</th>
+                                            <th>รายการ</th>
+                                            <th>หมวดหมู่</th>
+                                            <th class="text-right">จำนวนเงิน</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Populated via JS -->
+                                        <tr><td colspan="4" class="text-center text-muted">ไม่มีข้อมูลของเดือนนี้</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <!-- Investment Summary mini widget -->
+                        <div class="details-card">
+                            <div class="card-header">
+                                <h3>พอร์ตการลงทุนหลัก</h3>
+                                <button class="btn btn-text" id="btn-view-all-portfolio">ดูพอร์ตเต็ม</button>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="custom-table" id="table-recent-portfolio">
+                                    <thead>
+                                        <tr>
+                                            <th>สินทรัพย์</th>
+                                            <th class="text-right">เงินลงทุน</th>
+                                            <th class="text-right">มูลค่าปัจจุบัน</th>
+                                            <th class="text-right">กำไร/ขาดทุน</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Populated via JS -->
+                                        <tr><td colspan="4" class="text-center text-muted">ไม่มีข้อมูลการลงทุน</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TAB 2: TRANSACTIONS -->
+                <section class="tab-panel" id="tab-transactions">
+                    <div class="transactions-layout">
+                        <!-- Left Side: Transaction History -->
+                        <div class="glass-panel main-transactions-panel">
+                            <div class="panel-header">
+                                <h3>ประวัติรายการเดินบัญชี</h3>
+                                <div class="filter-controls">
+                                    <input type="text" id="tx-search" placeholder="ค้นหาชื่อรายการ..." class="glow-input">
+                                    <select id="tx-type-filter" class="glow-select">
+                                        <option value="all">ทุกประเภท</option>
+                                        <option value="income">รายรับ 📈</option>
+                                        <option value="expense">รายจ่าย 📉</option>
+                                        <option value="investment">ลงทุน 🚀</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="table-responsive text-small">
+                                <table class="custom-table" id="table-full-transactions">
+                                    <thead>
+                                        <tr>
+                                            <th>วันที่</th>
+                                            <th>ชื่อรายการ</th>
+                                            <th>ประเภท</th>
+                                            <th>หมวดหมู่</th>
+                                            <th class="text-right">จำนวนเงิน</th>
+                                            <th class="text-center">จัดการ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tx-list-body">
+                                        <!-- Populated dynamically via JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="table-pagination" id="tx-pagination">
+                                <!-- Paginated controls populated via JS -->
+                            </div>
+                        </div>
+
+                        <!-- Right Side: Quick Add / Edit Form -->
+                        <div class="glass-panel form-panel">
+                            <h3 id="form-tx-title">เพิ่มธุรกรรมใหม่</h3>
+                            <form id="form-transaction" class="custom-form">
+                                <input type="hidden" id="tx-id" value="">
+                                
+                                <div class="form-group">
+                                    <label for="tx-date">วันที่</label>
+                                    <input type="date" id="tx-date" required class="glow-input">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="tx-name">ชื่อรายการ</label>
+                                    <input type="text" id="tx-name" placeholder="เช่น ค่าข้าวเช้า, เงินเดือน" required class="glow-input">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="tx-type">ประเภทรายการ</label>
+                                    <select id="tx-type" required class="glow-select">
+                                        <option value="expense">รายจ่าย 📉</option>
+                                        <option value="income">รายรับ 📈</option>
+                                        <option value="investment">เงินลงทุนประจำเดือน 🚀</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="tx-category">หมวดหมู่</label>
+                                    <select id="tx-category" required class="glow-select">
+                                        <!-- Dynamic options depending on type -->
+                                    </select>
+                                    <div class="custom-category-wrapper" style="margin-top: 8px; display:none;" id="custom-cat-container">
+                                        <input type="text" id="tx-custom-category" placeholder="ระบุหมวดหมู่ใหม่..." class="glow-input">
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="tx-amount">จำนวนเงิน (บาท)</label>
+                                    <input type="number" id="tx-amount" min="0.01" step="0.01" placeholder="0.00" required class="glow-input">
+                                </div>
+                                
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-primary" id="btn-save-tx">บันทึกรายการ</button>
+                                    <button type="button" class="btn btn-secondary" id="btn-cancel-edit" style="display:none;">ยกเลิก</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TAB 3: PORTFOLIO -->
+                <section class="tab-panel" id="tab-portfolio">
+                    <!-- Portfolio Summary Section -->
+                    <div class="portfolio-summary-bar glass-panel">
+                        <div class="p-summary-item">
+                            <span class="p-summary-label">มูลค่าต้นทุนทั้งหมด</span>
+                            <span class="p-summary-value text-blue" id="port-total-cost">฿0.00</span>
+                        </div>
+                        <div class="divider"></div>
+                        <div class="p-summary-item">
+                            <span class="p-summary-label">มูลค่าตลาดปัจจุบัน</span>
+                            <span class="p-summary-value text-indigo" id="port-total-value">฿0.00</span>
+                        </div>
+                        <div class="divider"></div>
+                        <div class="p-summary-item">
+                            <span class="p-summary-label">กำไร / ขาดทุนรวม</span>
+                            <span class="p-summary-value" id="port-total-profit">฿0.00 (0.00%)</span>
+                        </div>
+                        <div class="divider"></div>
+                        <div class="p-summary-item">
+                            <button class="btn btn-success" id="btn-sync-prices">
+                                <span class="btn-icon">🔄</span> ดึงราคาหุ้นเรียลไทม์ (API)
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="portfolio-layout">
+                        <!-- Stock List & Management -->
+                        <div class="glass-panel main-portfolio-panel">
+                            <div class="panel-header">
+                                <h3>รายการสินทรัพย์และการลงทุนทั้งหมด</h3>
+                                <button class="btn btn-primary btn-sm" id="btn-add-asset">+ เพิ่มสินทรัพย์ใหม่</button>
+                            </div>
+                            
+                            <div class="table-responsive">
+                                <table class="custom-table" id="table-full-portfolio">
+                                    <thead>
+                                        <tr>
+                                            <th>สัญลักษณ์</th>
+                                            <th>ชื่อสินทรัพย์ / ประเภท</th>
+                                            <th class="text-right">จำนวนหน่วยที่ถือ</th>
+                                            <th class="text-right">ต้นทุนเฉลี่ย</th>
+                                            <th class="text-right">เงินลงทุนรวม (ต้นทุน)</th>
+                                            <th class="text-right">ราคาตลาดล่าสุด</th>
+                                            <th class="text-right">มูลค่าปัจจุบัน</th>
+                                            <th class="text-right">กำไร / ขาดทุน</th>
+                                            <th class="text-center">จัดการ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="portfolio-list-body">
+                                        <!-- Populated via JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="portfolio-notes">
+                                <p class="text-muted"><small>* สำหรับหุ้นสหรัฐฯ (เช่น ASTS, QQQ, LLY, NFLX, EOSE) และทองคำแท่ง (สัญลักษณ์ ทอง หรือ GOLD) ระบบจะเชื่อมต่อกับ Yahoo Finance API ผ่าน AllOrigins Proxy เพื่อดึงราคาตลาดปัจจุบัน (และแปลงเป็น THB สำหรับทองคำตามเรตแลกเปลี่ยนจริง) โดยอัตโนมัติ</small></p>
+                                <p class="text-muted"><small>** สำหรับสินทรัพย์ทั่วไป หรือสินทรัพย์ในประเทศอื่น ๆ คุณสามารถกดปุ่มแก้ไขเพื่อระบุมูลค่าปัจจุบันด้วยตัวเองได้ตลอดเวลา</small></p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TAB 4: DATA MANAGEMENT & EXCEL IMPORT -->
+                <section class="tab-panel" id="tab-data-mgmt">
+                    <div class="data-mgmt-grid">
+                        
+                        <!-- Block 1: Excel Import -->
+                        <div class="glass-panel data-card">
+                            <div class="data-card-header">
+                                <div class="data-card-icon">📂</div>
+                                <h3>นำเข้าข้อมูลเดิมจาก Excel</h3>
+                            </div>
+                            <p class="data-card-desc">สามารถดึงข้อมูลประวัติรายรับรายจ่าย รายเดือน และข้อมูลหุ้นจากชีต `รายรับรายจ่าย_JNP.xlsx` เข้าสู่ระบบเว็บแอปพลิเคชันนี้ได้ทันที โดยไม่ต้องเริ่มกรอกข้อมูลใหม่</p>
+                            
+                            <!-- Drag and Drop Area -->
+                            <div class="drop-zone" id="excel-drop-zone">
+                                <span class="drop-zone-prompt">ลากไฟล์ Excel (.xlsx) มาวางที่นี่ หรือคลิกเพื่ออัปโหลด</span>
+                                <input type="file" id="excel-file-input" accept=".xlsx" style="display: none;">
+                            </div>
+                            <div class="import-status" id="excel-import-status" style="display:none;">
+                                <!-- Success or Error alerts generated via JS -->
+                            </div>
+                            
+                            <div class="import-instructions">
+                                <h4>💡 คำแนะนำในการอัปโหลด:</h4>
+                                <ul>
+                                    <li>ตัวอ่านสคริปต์นี้จะอ่านข้อมูลจากหน้าชีต **"สรุปข้อมูลรายเดือน"** (เพื่อดึงตารางรายรับ รายจ่าย และพอร์ตลงทุนของแต่ละเดือน) และหน้าชีต **"สรุปข้อมูลการออม+ลงทุน"** (เพื่อดึงประวัติพอร์ตหุ้น)</li>
+                                    <li>รองรับไฟล์เทมเพลตรายรับรายจ่ายของ JNP ทุกเวอร์ชัน</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <!-- Block 2: Backup and Reset -->
+                        <div class="glass-panel data-card">
+                            <div class="data-card-header">
+                                <div class="data-card-icon">💾</div>
+                                <h3>การสำรองข้อมูลและความปลอดภัย</h3>
+                            </div>
+                            <p class="data-card-desc">ข้อมูลทั้งหมดจะถูกจัดเก็บอย่างปลอดภัยแบบ Local อยู่บนเบราว์เซอร์ของคุณเอง ไม่มีขีดจำกัดในการบันทึก และไม่มีการส่งข้อมูลไปยังเซิร์ฟเวอร์ภายนอกใด ๆ เพื่อความเป็นส่วนตัวสูงสุด</p>
+                            
+                            <div class="data-actions-vertical">
+                                <button class="btn btn-indigo btn-block" id="btn-export-json">
+                                    📥 ดาวน์โหลดไฟล์สำรองข้อมูล (.json)
+                                </button>
+                                <div class="upload-backup-btn-wrapper">
+                                    <button class="btn btn-secondary btn-block" id="btn-trigger-import-json">
+                                        📤 อัปโหลดไฟล์กู้คืนข้อมูล (.json)
+                                    </button>
+                                    <input type="file" id="json-import-file" accept=".json" style="display:none;">
+                                </div>
+                                <hr class="data-divider">
+                                <button class="btn btn-danger btn-block" id="btn-clear-all-data">
+                                    ⚠️ ลบข้อมูลในระบบทั้งหมด (ล้างข้อมูลเริ่มใหม่)
+                                </button>
+                            </div>
+                            
+                            <div class="backup-info">
+                                <p><strong>ℹ️ ข้อแนะนำ:</strong> ควรทำไฟล์สำรอง (.json) เก็บไว้ทุกเดือนหลังจากทำบัญชีเสร็จ เพื่อป้องกันกรณีเผลอล้างประวัติเบราว์เซอร์หรือย้ายไปเล่นเครื่องใหม่ครับ</p>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- MODALS SECTION -->
+    
+    <!-- Modal 1: Quick Add Transaction Modal -->
+    <div class="modal" id="modal-quick-add">
+        <div class="modal-content glass-panel">
+            <div class="modal-header">
+                <h3>เพิ่มรายการการเงินใหม่</h3>
+                <span class="modal-close" id="modal-close-add">&times;</span>
+            </div>
+            <div class="modal-body">
+                <!-- Transaction Form cloned or shared in JS -->
+                <div id="modal-form-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 2: Add/Edit Asset Modal -->
+    <div class="modal" id="modal-asset">
+        <div class="modal-content glass-panel">
+            <div class="modal-header">
+                <h3 id="modal-asset-title">เพิ่มสินทรัพย์ในพอร์ตการลงทุน</h3>
+                <span class="modal-close" id="modal-close-asset">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="form-asset" class="custom-form">
+                    <input type="hidden" id="asset-id" value="">
+                    
+                    <div class="form-group">
+                        <label for="asset-ticker">ชื่อย่อสินทรัพย์ (Ticker Symbol)</label>
+                        <input type="text" id="asset-ticker" placeholder="เช่น ASTS, QQQ, VOO, LLY หรือ ทอง" required class="glow-input">
+                        <small class="form-tip">* ใส่ชื่อย่อที่ถูกต้องหากต้องการดึงราคาจากตลาดหุ้นสหรัฐฯ อัตโนมัติ</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="asset-name">ชื่อเต็มสินทรัพย์ / คำอธิบาย</label>
+                        <input type="text" id="asset-name" placeholder="เช่น AST SpaceMobile, กองทุนดัชนี Nasdaq, ทองคำแท่ง" required class="glow-input">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="asset-shares">จำนวนหน่วยที่ถืออยู่ <span id="shares-unit-label" class="text-warning">(หุ้น / หุ้นกู้)</span></label>
+                        <input type="number" id="asset-shares" step="0.00001" min="0.00001" placeholder="0.00000" required class="glow-input">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="asset-cost">ราคาต้นทุนเฉลี่ยต่อหน่วย</label>
+                        <input type="number" id="asset-cost" step="0.01" min="0.01" placeholder="0.00" required class="glow-input">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="asset-currency">สกุลเงินของต้นทุน</label>
+                        <select id="asset-currency" class="glow-select">
+                            <option value="USD">USD ($) - ดึงราคาหุ้นตลาดสหรัฐอเมริกา</option>
+                            <option value="THB">THB (฿) - หุ้นไทย, ทอง หรือสินทรัพย์ทั่วไป</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="asset-current-price">ราคาตลาดปัจจุบัน (ระบุเองได้)</label>
+                        <input type="number" id="asset-current-price" step="0.01" placeholder="ดึงอัตโนมัติสำหรับหุ้นสหรัฐฯ หรือทองคำ (หรือระบุเอง)" class="glow-input">
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary" id="btn-save-asset">บันทึกสินทรัพย์</button>
+                        <button type="button" class="btn btn-secondary" id="btn-close-asset-form">ยกเลิก</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dynamic JS Logic files -->
+    <script src="xlsx_helper.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
